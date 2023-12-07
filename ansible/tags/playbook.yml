@@ -1,0 +1,28 @@
+-   hosts: server
+    vars_files:
+        -   ansible_secret.yml
+    tasks:
+    -   name: create user
+        user:
+            name: ansibleuser
+            state: present
+            password: "{{ user_password | password_hash('sha512','A512') }}"
+            update_password: on_create
+            shell: /bin/bash
+            group: sudo
+        become: yes
+
+    -   name: install joe
+        ansible.builtin.apt:
+            name: joe
+            state: present
+            update_cache: yes
+        become: yes
+
+    -   name: install tilix
+        ansible.builtin.apt:
+            name: tilix
+            state: present
+            update_cache: yes
+        become: yes
+        tags: tilix

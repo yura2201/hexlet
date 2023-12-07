@@ -1,0 +1,13 @@
+-   hosts: 95.164.87.71
+    tasks:
+    -   name: install kate
+        ansible.builtin.apt:
+            name: kate
+            state: present
+            update_cache: yes
+        become: yes
+
+    -   name: remove kate
+        ansible.builtin.apt:
+            name: kate
+            state: absent
