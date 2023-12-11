@@ -11,7 +11,7 @@
     -   name: copy index
         ansible.builtin.copy:
             src: files/index.html
-            dest: /etc/nginx/html/index.html
+            dest: /usr/share/nginx/html/index.html
         become: yes
 
     -   name: copy nginx config
