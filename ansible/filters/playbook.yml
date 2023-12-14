@@ -1,0 +1,22 @@
+-   hosts: server
+    vars_files:
+        -   ../ansible_secret.yml
+    vars:
+        root_dir: '/var/tmp/www'
+        nginx_port: '8080'
+        index_title2: "This is server {{ ansible_facts.os_family }}!"
+    tasks:
+    -   name: templating and copy index
+        ansible.builtin.template:
+            src: templates/index.html.j2
+            dest: "{{ root_dir }}/index.html"
+        notify:
+            -   restart nginx
+        become: yes
+
+    handlers:
+    -   name: restart nginx
+        ansible.builtin.service:
+            name: nginx
+            state: reloaded
+        become: yes
