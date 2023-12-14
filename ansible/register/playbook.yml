@@ -1,0 +1,50 @@
+-   hosts: server
+    vars_files:
+        -   ../ansible_secret.yml
+    vars:
+        root_dir: '/var/tmp/www'
+        nginx_port: '8080'
+        index_title2: "This is server {{ ansible_facts.os_family }}!"
+    tasks:
+    -   name: Check if cowsay is installed
+        command: "dpkg -l cowsay"
+        register: cowsay_check
+        ignore_errors: yes
+
+    -   name: Install if cowsay is not present
+        ansible.builtin.apt:
+            name: cowsay
+            state: latest
+            update_cache: yes
+        become: yes
+        when: cowsay_check.stderr.find('no packages found') != -1
+
+    -   name: run cowsay
+        command: "cowsay -f tux '{{ index_title2 }}'"
+        register: cowsay_result
+        ignore_errors: yes
+
+    -   name: concat success cowsay_result
+        set_fact:
+            joined_cowsay_result: " {{ cowsay_result.stdout_lines | join('\n') }} "
+        when: cowsay_result.stdout.find('This is server') != -1
+
+    -   name: set default result when cowsay faild
+        set_fact:
+            joined_cowsay_result: "{{ index_title2 }}"
+        when: cowsay_result.stdout.find('This is server') == -1
+
+    -   name: templating and copy index
+        ansible.builtin.template:
+            src: templates/index.html.j2
+            dest: "{{ root_dir }}/index.html"
+        notify:
+            -   restart nginx
+        become: yes
+
+    handlers:
+    -   name: restart nginx
+        ansible.builtin.service:
+            name: nginx
+            state: reloaded
+        become: yes
