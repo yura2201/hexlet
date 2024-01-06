@@ -1,6 +1,6 @@
 -   hosts: server
     vars_files:
-        -   ansible_secret.yml
+        -   ../ansible_secret.yml
     tasks:
     -   name: create user
         user:
